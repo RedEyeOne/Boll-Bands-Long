@@ -1,0 +1,36 @@
+strategy("Boll Band Long", overlay=true, margin_long=100, margin_short=100)
+
+
+length = input.int(20, minval=1)
+src = input(close, title="Source")
+mult = input.float(2.0, minval=0.001, maxval=50, title="StdDev")
+basis = ta.sma(src, length)
+dev = mult * ta.stdev(src, length)
+upper = basis + dev
+lower = basis - dev
+
+//load stop and target
+short_target = strategy.position_avg_price - (strategy.position_avg_price * 0.02)
+long_target  = strategy.position_avg_price + (strategy.position_avg_price * 0.02)
+short_stop = strategy.position_avg_price + (strategy.position_avg_price * 0.02)
+long_stop = strategy.position_avg_price - (strategy.position_avg_price * 0.02)
+
+//execute trade
+longCondition = close < lower 
+if (longCondition)
+    qntty = (1000 / close)
+    strategy.entry("Long Scalp", strategy.long, qntty)
+if (strategy.position_size > 0)
+    strategy.exit(id="Long Scalp", stop=long_stop, limit=long_target)
+
+
+
+// Bellow are conditions for a short trade if you wanted to add it but for simplicity sake I created a seperate indicator for that.
+
+
+//shortCondition = close > upper
+//if (shortCondition)
+//    qntty = 10000 / close
+//    strategy.entry("Short", strategy.short, qntty)
+//if (strategy.position_size < 0)
+//    strategy.exit(id="Short", stop=short_target, limit = short_stop)
